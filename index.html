@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BOREALIS — A Turanic Suffix-Order Language</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0e16;
+    --bg-panel:#0f1620;
+    --bg-panel-2:#121b27;
+    --line:#212d3d;
+    --ink:#e9edf3;
+    --muted:#8d98ab;
+    --teal:#4fd8c4;
+    --violet:#9b7fe0;
+    --amber:#e8c07d;
+    --max:920px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Manrope',sans-serif;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;}
+  code, pre, .mono{font-family:'JetBrains Mono',monospace;}
+
+  .wrap{max-width:var(--max); margin:0 auto; padding:0 28px;}
+
+  /* ---------- Hero ---------- */
+  .hero{
+    position:relative;
+    overflow:hidden;
+    padding:100px 0 90px;
+    border-bottom:1px solid var(--line);
+  }
+  .aurora{
+    position:absolute;
+    inset:-30% -10% auto -10%;
+    height:640px;
+    background:
+      radial-gradient(ellipse 60% 40% at 30% 20%, rgba(79,216,196,0.16), transparent 60%),
+      radial-gradient(ellipse 50% 35% at 75% 10%, rgba(155,127,224,0.14), transparent 60%);
+    filter:blur(30px);
+    animation:drift 22s ease-in-out infinite alternate;
+    pointer-events:none;
+  }
+  @keyframes drift{
+    from{ transform:translateY(0) scale(1); }
+    to{ transform:translateY(30px) scale(1.05); }
+  }
+  @media (prefers-reduced-motion: reduce){ .aurora{ animation:none; } }
+
+  .hero-grid{
+    position:relative;
+    display:grid;
+    grid-template-columns:1.2fr 0.8fr;
+    gap:48px;
+    align-items:center;
+  }
+  .eyebrow-lang{
+    font-family:'JetBrains Mono',monospace;
+    font-size:13px;
+    color:var(--muted);
+    letter-spacing:0.02em;
+    margin-bottom:18px;
+  }
+  .eyebrow-lang .dot{color:var(--teal);}
+  h1.title{
+    font-family:'Fraunces',serif;
+    font-weight:500;
+    font-size:clamp(40px, 6vw, 68px);
+    line-height:1.03;
+    margin:0 0 22px;
+    letter-spacing:-0.01em;
+  }
+  h1.title em{
+    font-style:normal;
+    background:linear-gradient(100deg, var(--teal), var(--violet));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  .lede{
+    font-size:18px;
+    color:var(--muted);
+    max-width:52ch;
+    margin:0 0 34px;
+  }
+  .cta-row{display:flex; gap:14px; flex-wrap:wrap;}
+  .btn{
+    display:inline-block;
+    padding:13px 22px;
+    border-radius:8px;
+    font-weight:600;
+    font-size:15px;
+    text-decoration:none;
+    transition:transform 0.15s ease, opacity 0.15s ease;
+  }
+  .btn:hover{transform:translateY(-1px);}
+  .btn-primary{background:var(--amber); color:#1a1305;}
+  .btn-secondary{background:transparent; color:var(--ink); border:1px solid var(--line);}
+
+  .rune-panel{
+    position:relative;
+    height:340px;
+    border:1px solid var(--line);
+    border-radius:14px;
+    background:var(--bg-panel);
+    overflow:hidden;
+  }
+  .rune-panel svg{width:100%; height:100%;}
+
+  /* ---------- Sections ---------- */
+  section{padding:76px 0;}
+  section + section{border-top:1px solid var(--line);}
+  h2.section-title{
+    font-family:'Fraunces',serif;
+    font-weight:500;
+    font-size:clamp(26px, 3.4vw, 34px);
+    margin:0 0 16px;
+  }
+  .section-lede{
+    color:var(--muted);
+    max-width:64ch;
+    font-size:16px;
+    margin:0 0 44px;
+  }
+
+  /* Code compare */
+  .compare{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+    border-radius:12px;
+    overflow:hidden;
+  }
+  .compare > div{background:var(--bg-panel); padding:26px 28px;}
+  .compare-label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    color:var(--muted);
+    margin-bottom:14px;
+  }
+  .compare pre{
+    margin:0;
+    font-size:14.5px;
+    line-height:1.7;
+    white-space:pre-wrap;
+    color:var(--ink);
+  }
+  .compare pre .kw{color:var(--teal);}
+  .compare pre .str{color:var(--amber);}
+  @media (max-width: 720px){ .compare{grid-template-columns:1fr;} }
+
+  /* Philosophy prose */
+  .prose{max-width:64ch; font-size:17px; color:#d3d9e2;}
+  .prose p{margin:0 0 20px;}
+  .prose strong{color:var(--ink); font-weight:600;}
+
+  /* Grammar table */
+  table.grammar{
+    width:100%;
+    border-collapse:collapse;
+    font-size:15px;
+  }
+  table.grammar th{
+    text-align:left;
+    font-weight:600;
+    color:var(--muted);
+    font-size:13px;
+    padding:0 16px 12px 0;
+    border-bottom:1px solid var(--line);
+  }
+  table.grammar td{
+    padding:14px 16px 14px 0;
+    border-bottom:1px solid var(--line);
+    vertical-align:top;
+  }
+  table.grammar td.code{font-family:'JetBrains Mono',monospace; color:var(--teal); white-space:nowrap;}
+  table.grammar tr:last-child td{border-bottom:none;}
+
+  /* Install steps */
+  .steps{counter-reset:step; display:grid; gap:0;}
+  .step{
+    display:grid;
+    grid-template-columns:36px 1fr;
+    gap:18px;
+    padding:22px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .step:last-child{border-bottom:none;}
+  .step::before{
+    counter-increment:step;
+    content:counter(step);
+    font-family:'JetBrains Mono',monospace;
+    font-size:14px;
+    color:var(--violet);
+    border:1px solid var(--line);
+    border-radius:50%;
+    width:36px; height:36px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .step h3{margin:2px 0 8px; font-size:16px; font-weight:600;}
+  .step p{margin:0 0 10px; color:var(--muted); font-size:15px;}
+  .step pre{
+    background:var(--bg-panel-2);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:12px 16px;
+    font-size:14px;
+    overflow-x:auto;
+    margin:0;
+  }
+
+  footer{
+    padding:44px 0 60px;
+    color:var(--muted);
+    font-size:14px;
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:12px;
+  }
+  footer a{color:var(--teal); text-decoration:none;}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="aurora"></div>
+  <div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow-lang">.bor <span class="dot">·</span> transpiles to Python 3</div>
+      <h1 class="title">A language that puts<br>the verb <em>last</em>.</h1>
+      <p class="lede">
+        BOREALIS is an agglutinative, subject–object–verb language built on
+        the shared grammatical logic of the Eurasian steppe and taiga —
+        Finnish, Estonian, Hungarian, Turkish, Kazakh, Mongolian, Korean,
+        Japanese. Conditions and loops aren't keywords you write in front
+        of an expression. They're suffixes you attach to the end of it.
+      </p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="https://github.com/YOUR-USERNAME/borealis-lang/releases/latest">Download borealis.exe</a>
+        <a class="btn btn-secondary" href="#install">View install steps</a>
+      </div>
+    </div>
+    <div class="rune-panel">
+      <svg viewBox="0 0 300 340" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#4fd8c4" stop-opacity="0.55"/>
+            <stop offset="100%" stop-color="#9b7fe0" stop-opacity="0.35"/>
+          </linearGradient>
+        </defs>
+        <g fill="none" stroke="url(#g1)" stroke-width="1.4">
+          <path d="M0 60 Q75 10 150 60 T300 60"/>
+          <path d="M0 110 Q75 60 150 110 T300 110"/>
+          <path d="M0 160 Q75 210 150 160 T300 160"/>
+          <path d="M0 210 Q75 160 150 210 T300 210"/>
+          <path d="M0 260 Q75 310 150 260 T300 260"/>
+        </g>
+        <g fill="#e8c07d" opacity="0.55">
+          <circle cx="40" cy="60" r="2.2"/>
+          <circle cx="230" cy="110" r="2.2"/>
+          <circle cx="120" cy="210" r="2.2"/>
+          <circle cx="260" cy="260" r="2.2"/>
+        </g>
+      </svg>
+    </div>
+  </div>
+</header>
+
+<section id="how-it-reads">
+  <div class="wrap">
+    <h2 class="section-title">How it reads</h2>
+    <p class="section-lede">
+      Nothing is renamed for its own sake. Every BOREALIS line becomes one
+      recognizable Python line — the difference is where the grammar sits.
+    </p>
+    <div class="compare">
+      <div>
+        <div class="compare-label">source.bor</div>
+        <pre>weather = "rainy"
+
+weather == "rainy"<span class="kw">if</span>:
+    <span class="str">"Take umbrella"</span> <span class="kw">print</span>.
+<span class="kw">otherwise</span>:
+    <span class="str">"Stay home"</span> <span class="kw">print</span>.
+
+counter <= 5<span class="kw">while</span>:
+    counter <span class="kw">print</span>.
+    counter = counter + 1</pre>
+      </div>
+      <div>
+        <div class="compare-label">transpiled — source.py</div>
+        <pre>weather = "rainy"
+
+<span class="kw">if</span> weather == "rainy":
+    <span class="kw">print</span>(<span class="str">"Take umbrella"</span>)
+<span class="kw">else</span>:
+    <span class="kw">print</span>(<span class="str">"Stay home"</span>)
+
+<span class="kw">while</span> counter <= 5:
+    <span class="kw">print</span>(counter)
+    counter = counter + 1</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="philosophy">
+  <div class="wrap">
+    <h2 class="section-title">Why the verb comes last</h2>
+    <div class="prose">
+      <p>
+        Across the Eurasian steppe and into the Korean peninsula and Japan,
+        a family of unrelated-by-descent but typologically related languages
+        share two habits: they build meaning by <strong>stacking suffixes
+        onto a fixed root</strong>, and they save the <strong>predicate for
+        the end</strong> of the clause. You establish the subject, the
+        object, the condition — then, finally, the action.
+      </p>
+      <p>
+        Most programming languages inherited the opposite order from
+        English: <code>if</code> comes first, the condition follows.
+        BOREALIS inverts that. The condition is stated plainly, and
+        <code>if</code> is glued to the end of it as a bound suffix — the
+        same structural position a Turkic conditional suffix like
+        <code>-se</code> occupies on a verb stem.
+      </p>
+      <p>
+        Every rule in the grammar is anchored to the end of the line, so a
+        line can only ever satisfy one rule. There's no ambiguity to
+        resolve — the parser finds exactly one reading or none.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section id="grammar">
+  <div class="wrap">
+    <h2 class="section-title">Grammar at a glance</h2>
+    <table class="grammar">
+      <tr><th>BOREALIS</th><th>Role</th><th>Python equivalent</th></tr>
+      <tr><td class="code">&lt;expr&gt;if:</td><td>conditional suffix</td><td class="code">if &lt;expr&gt;:</td></tr>
+      <tr><td class="code">otherwise:</td><td>connector</td><td class="code">else:</td></tr>
+      <tr><td class="code">&lt;expr&gt;while:</td><td>loop suffix</td><td class="code">while &lt;expr&gt;:</td></tr>
+      <tr><td class="code">&lt;expr&gt; print.</td><td>output verb</td><td class="code">print(&lt;expr&gt;)</td></tr>
+      <tr><td class="code">watch:</td><td>error boundary</td><td class="code">try:</td></tr>
+      <tr><td class="code">fault:</td><td>error handler</td><td class="code">except:</td></tr>
+    </table>
+  </div>
+</section>
+
+<section id="install">
+  <div class="wrap">
+    <h2 class="section-title">Get running</h2>
+    <p class="section-lede">Two ways in: a standalone executable, or the Python package.</p>
+    <div class="steps">
+      <div class="step">
+        <div>
+          <h3>Download the executable</h3>
+          <p>No Python required. Grab <code>borealis.exe</code> from the releases page and run it from a terminal.</p>
+          <pre>borealis.exe run examples\hello.bor</pre>
+        </div>
+      </div>
+      <div class="step">
+        <div>
+          <h3>Or install the package</h3>
+          <p>If you already have Python 3.8+, clone the repo and install it as a command.</p>
+          <pre>python -m pip install -e .
+borealis run examples/hello.bor</pre>
+        </div>
+      </div>
+      <div class="step">
+        <div>
+          <h3>Write your first .bor file</h3>
+          <p>Copy <code>examples/hello.bor</code>, rename it, and change the logic. Any variable assignment or arithmetic line passes through unchanged.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="wrap">
+  <span>BOREALIS · MIT licensed</span>
+  <a href="https://github.com/YOUR-USERNAME/borealis-lang">Source on GitHub</a>
+</footer>
+
+</body>
+</html>
